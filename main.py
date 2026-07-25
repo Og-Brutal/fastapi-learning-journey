@@ -30,3 +30,15 @@ def about():
 @app.get("/patients/view",tags=["Patients"])
 def view_patients():
     return loadData()
+
+@app.get("/patients/view/{patient_id}")
+def view_particular_patient(patient_id:str = Path(...,description="The ID of the patient you want to view",example="P001")):
+
+    data=loadData()
+
+    patient_id=patient_id.upper()
+
+    if patient_id in data:
+        return data[patient_id]
+    
+    raise HTTPException(status_code=404,detail=f"Patient with ID {patient_id} not found")
