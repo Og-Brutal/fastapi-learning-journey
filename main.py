@@ -42,3 +42,18 @@ def view_particular_patient(patient_id:str = Path(...,description="The ID of the
         return data[patient_id]
     
     raise HTTPException(status_code=404,detail=f"Patient with ID {patient_id} not found")
+
+@app.get("/sort")
+def sort_patients(sort_by:str =Query(...,description="The field by which you want to sort the patients",example="age"),
+                  order:str= Query("asc",description="The order in which you want to sort the patients",example="asc")):
+    
+    if sort_by not in ['bmi','age','height','weight']:
+       raise HTTPException(status_code=400,detail=f"Invalid sort_by value. Must be one of ['bmi','age','height','weight']")
+    
+    if order not in ['asc','desc']:
+        raise HTTPException(status_code=400,detail=f"Invalid order value. Must be one of ['asc','desc']")
+    
+    data=loadData()
+
+    sorted_data=sorted(data.values(),key=lambda x:x[sort_by],reverse=(order=="desc"))   
+    return sorted_data
