@@ -25,3 +25,8 @@ def hello_world_api():
 @app.get("/about",tags=["Health"])
 def about():
     return {"message":" Hey i am learning fastapi and i am enjoying it !!!"}
+
+
+@app.get("/patients/view",tags=["Patients"])
+def view_patients():
+    return loadData()
