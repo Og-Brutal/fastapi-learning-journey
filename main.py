@@ -3,7 +3,7 @@ from ast import Lambda
 from fastapi import FastAPI,Path,HTTPException, Query, responses
 import json 
 from fastapi.responses import JSONResponse
-
+from models.Patient_model import Patient
 
 app = FastAPI()
 
@@ -70,3 +70,24 @@ def get_patient_field(patient_id:str =Path(...,description="The ID of the patien
     field_value=data[patient_id.upper()][field]
 
     return {field:field_value}
+
+
+### in fast api when a http request occur it reads the associated fucntion and if in function defincation it found a pydantic object
+### then it check request body becuase it knows that if in signatute there is pydantic model then there should be something in 
+### request body and then fast api on his own parse json body and create a Pateint model if it is created successfully then
+### then pass pydantic model as argument but if any validation error occur it automatically raise erorr 422 unprocessable entity 
+
+
+@app.post("/patient/create")
+def create_patient(patient:Patient):
+
+    data =loadData()
+
+    if patient.id in data:
+        raise HTTPException(status_code=400,detail="Pateint already exist !")
+
+    data[patient.id]=patient.model_dump(exclude=["id"])
+
+    saveData(data)
+
+    return JSONResponse(status_code=201,content={"message": "Patient created successfully !!!"})
