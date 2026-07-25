@@ -4,7 +4,7 @@ from fastapi import FastAPI,Path,HTTPException, Query, responses
 import json 
 from fastapi.responses import JSONResponse
 from models.Patient_model import Patient
-
+from models.update_patient_model import UpdatedPatient
 app = FastAPI()
 
 def loadData():
@@ -91,3 +91,29 @@ def create_patient(patient:Patient):
     saveData(data)
 
     return JSONResponse(status_code=201,content={"message": "Patient created successfully !!!"})
+
+
+@app.put("/patient/update/{patient_id}")
+def update_patient(updatedDetail : UpdatedPatient 
+                   ,patient_id: str= Path(...,description="patient id of patient whom you want to update !",example="P001")):
+
+    data=loadData()
+
+    if patient_id not in data:
+        raise HTTPException(status_code=404,detail="Patient not found !")
+
+    oldPatientDetails=data[patient_id]
+    updatedDetails=updatedDetail.model_dump(exclude_unset=True)
+
+    merged_new_updaetd_patient={**oldPatientDetails,**updatedDetails} # this line merge two dicts key_value pairs and if two dict have same keys then the later one key's value remains 
+
+    merged_new_updaetd_patient["id"]=patient_id
+    new_validated_Pateint=Patient(**merged_new_updaetd_patient)
+
+    patient_dict=new_validated_Pateint.model_dump(exclude="id")
+
+    data[patient_id]=patient_dict
+
+    saveData(data)
+
+    return JSONResponse(status_code=200,content={"message":"Pateint updated successfully !!"})
