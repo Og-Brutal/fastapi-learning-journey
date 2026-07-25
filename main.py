@@ -57,3 +57,16 @@ def sort_patients(sort_by:str =Query(...,description="The field by which you wan
 
     sorted_data=sorted(data.values(),key=lambda x:x[sort_by],reverse=(order=="desc"))   
     return sorted_data
+
+
+@app.get("/patient/{patient_id}")
+def get_patient_field(patient_id:str =Path(...,description="The ID of the patient you want to view",example="P001"),
+                      field:str =Query(...,description="The field you want to view for the patient",example="age")):
+    
+    if field not in ['name','age','height','weight','bmi','verdict','city','gender']:
+        raise HTTPException(status_code=400,detail=f"Invalid field value. Must be one of ['name','age','height','weight','bmi','verdict','city','gender']")
+    data=loadData()
+
+    field_value=data[patient_id.upper()][field]
+
+    return {field:field_value}
